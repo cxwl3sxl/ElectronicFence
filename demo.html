@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="https://cdn.bootcss.com/jquery/1.9.1/jquery.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak={你的AK}"></script>
+    <script src="Scripts/ElectronicFence.js"></script>
+    <link href="css/ElectronicFence.css" rel="stylesheet" />
+</head>
+<body>
+    <div style="position:absolute; top:0px; left:0px; right:0px; height:50px;">
+        <button onclick="show()">获取数据</button>
+        <button onclick="set()">设置数据</button>
+        <input type="text" id="jsonValues" />
+    </div>
+    <div id="map" style="position:absolute; top:50px; left:0px; right:0px; bottom:0px;"></div>
+    <script type="text/javascript">
+        //var mainOverlay = null;
+        var map = new BMap.Map("map");
+        map.centerAndZoom(new BMap.Point(104.072213, 30.663393), 5);
+        var navigationControl = new BMap.NavigationControl({
+            anchor: BMAP_ANCHOR_TOP_LEFT,
+            type: BMAP_NAVIGATION_CONTROL_LARGE,
+            enableGeolocation: true
+        });
+        map.addControl(navigationControl);
+        map.enableScrollWheelZoom();
+        map.enableContinuousZoom();
+
+        var ef = new ElectronicFence(map);
+        function show() {
+            $("#jsonValues").val(JSON.stringify(ef.getElectronicFence()));
+        }
+
+        function set() {
+            ef.setElectronicFence(JSON.parse($("#jsonValues").val()));
+        }
+    </script>
+</body>
+</html>
