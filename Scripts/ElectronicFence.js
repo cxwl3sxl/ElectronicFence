@@ -439,10 +439,10 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
                 // 2. element是为了修正this
                 listener.call(element, ev);
             },
-            lis = baidu.event._listeners,
-            filter = baidu.event._eventFilter,
-            afterFilter,
-            realType = type;
+                lis = baidu.event._listeners,
+                filter = baidu.event._eventFilter,
+                afterFilter,
+                realType = type;
             type = type.toLowerCase();
             // filter过滤
             if (filter && filter[type]) {
@@ -852,22 +852,22 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
 
     },
 
-    /**
-     * 开启地图的绘制状态
-     * @return {Boolean}，开启绘制状态成功，返回true；否则返回false。
-     */
-    DrawingManager.prototype._open = function () {
+        /**
+         * 开启地图的绘制状态
+         * @return {Boolean}，开启绘制状态成功，返回true；否则返回false。
+         */
+        DrawingManager.prototype._open = function () {
 
-        this._isOpen = true;
+            this._isOpen = true;
 
-        //添加遮罩，所有鼠标操作都在这个遮罩上完成
-        if (!this._mask) {
-            this._mask = new Mask();
+            //添加遮罩，所有鼠标操作都在这个遮罩上完成
+            if (!this._mask) {
+                this._mask = new Mask();
+            }
+            this._map.addOverlay(this._mask);
+            this._setDrawingMode(this._drawingType);
+
         }
-        this._map.addOverlay(this._mask);
-        this._setDrawingMode(this._drawingType);
-
-    }
 
     /**
      * 设置当前的绘制模式
@@ -1030,7 +1030,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
             points = [],   //用户绘制的点
             drawPoint = null; //实际需要画在地图上的点
         overlay = null,
-        isBinded = false;
+            isBinded = false;
 
         /**
          * 鼠标点击的事件
@@ -1567,9 +1567,9 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
     Mask.prototype.getDrawPoint = function (e) {
 
         var map = this._map,
-        trigger = baidu.getTarget(e),
-        x = e.offsetX || e.layerX || 0,
-        y = e.offsetY || e.layerY || 0;
+            trigger = baidu.getTarget(e),
+            x = e.offsetX || e.layerX || 0,
+            y = e.offsetY || e.layerY || 0;
         if (trigger.nodeType != 1) trigger = trigger.parentNode;
         while (trigger && trigger != map.getContainer()) {
             if (!(trigger.clientWidth == 0 &&
@@ -1847,13 +1847,20 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
 })();
 
 //TODO: 传递allowMulit=true的时候有bug
-function ElectronicFence(map, allowMulit) {
+function ElectronicFence(map, opts) {
+
+    var drawOpts = $.extend({
+        allowMulit: false,
+        computeInfo: false,//页面必须引用GeoUtils_min.js
+        drawingModes: [BMAP_DRAWING_CIRCLE, BMAP_DRAWING_POLYGON, BMAP_DRAWING_RECTANGLE, PJ_ADMINISTRATIVE_AREA]
+    }, opts);
+
     this._ef = new Array();
     this._map = map;
     this._allowMulti = false;
     this._mainOverlays = new Array();
 
-    if (allowMulit) {
+    if (drawOpts.allowMulit) {
         this._allowMulti = true;
     }
     else {
@@ -1876,10 +1883,10 @@ function ElectronicFence(map, allowMulit) {
         drawingToolOptions: {
             anchor: BMAP_ANCHOR_TOP_RIGHT,
             offset: new BMap.Size(5, 5),
-            drawingModes: [BMAP_DRAWING_CIRCLE, BMAP_DRAWING_POLYGON, BMAP_DRAWING_RECTANGLE, PJ_ADMINISTRATIVE_AREA],
+            drawingModes: drawOpts.drawingModes,
             beforeDraw: function () {
-                if (allowMulit)
-                    return;
+                if (drawOpts.allowMulit)
+                    return true;
                 if (me._mainOverlays.length != 0) {
                     if (confirm("当前已经绘制了电子围栏是否删除继续绘制新的？")) {
                         for (var i = 0; i < me._mainOverlays.length; i++) {
@@ -1928,6 +1935,9 @@ function ElectronicFence(map, allowMulit) {
             text: data.text,
             pointArray: data.pointArray
         });
+    });
+    myDrawingManagerObject.addEventListener("polylinecomplete", function (e, overlay) {
+        console.log("划线完毕")
     });
 }
 ElectronicFence.prototype.setElectronicFence = function (efs) {

@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title></title>
     <script src="https://cdn.bootcss.com/jquery/1.9.1/jquery.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak={你的AK}"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=yXmCeVD0GStrGrtBvlpIrByCbbbuZnsG">
+    </script>
+    <script src="Scripts/GeoUtils_min.js"></script>
     <script src="Scripts/ElectronicFence.js"></script>
+    
     <link href="css/ElectronicFence.css" rel="stylesheet" />
 </head>
+
 <body>
     <div style="position:absolute; top:0px; left:0px; right:0px; height:50px;">
         <button onclick="show()">获取数据</button>
@@ -28,7 +33,17 @@
         map.enableScrollWheelZoom();
         map.enableContinuousZoom();
 
-        var ef = new ElectronicFence(map);
+        var ef = new ElectronicFence(map, {
+            allowMulit: true,
+            drawingModes: [
+                BMAP_DRAWING_CIRCLE,
+                BMAP_DRAWING_POLYLINE,
+                BMAP_DRAWING_POLYGON,
+                BMAP_DRAWING_RECTANGLE,
+                PJ_ADMINISTRATIVE_AREA
+            ]
+        });
+
         function show() {
             $("#jsonValues").val(JSON.stringify(ef.getElectronicFence()));
         }
@@ -38,4 +53,5 @@
         }
     </script>
 </body>
+
 </html>
