@@ -115,6 +115,20 @@
     background-position: -390px -104px;
 }
 
+/*清空按钮*/
+.BMapLib_Drawing .BMapLib_cleanbtn {
+    background-position: -454px 0;
+}
+
+.BMapLib_Drawing .BMapLib_cleanbtn_hover {
+    background-position: -454px -52px;
+}
+
+.BMapLib_Drawing .BMapLib_cleanbtn_disabled {
+    background-position: -454px -104px;
+}
+
+
 /*组合按钮*/
 .groupItem-box {
     box-shadow:1px 1px 3px rgba(0,0,0,0.3);

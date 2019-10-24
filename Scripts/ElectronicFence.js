@@ -22,8 +22,9 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
     BMAP_DRAWING_POLYLINE = "polyline",   // 鼠标画线模式
     BMAP_DRAWING_CIRCLE = "circle",     // 鼠标画圆模式
     BMAP_DRAWING_RECTANGLE = "rectangle",  // 鼠标画矩形模式
-    BMAP_DRAWING_POLYGON = "polygon";    // 鼠标画多边形模式
-PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模式
+    BMAP_DRAWING_POLYGON = "polygon",    // 鼠标画多边形模式
+    PJ_ADMINISTRATIVE_AREA = "administrativearea",//基于行政区域的围栏模式
+    CLEAN_BUTTON = "cleanbtn";//清空按钮
 
 (function () {
 
@@ -994,6 +995,9 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
          */
         var endAction = function (e) {
             var calculate = me._calculate(circle, e.point);
+            if (calculate && calculate.label) {
+                circle._label = calculate.label;
+            }
             me._dispatchOverlayComplete(circle, calculate);
             centerPoint = null;
             mask.disableEdgeMove();
@@ -1088,6 +1092,9 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
             //console.log(points.length);
             overlay.setPath(points);
             var calculate = me._calculate(overlay, points.pop());
+            if (calculate && calculate.label) {
+                overlay._label = calculate.label;
+            }
             me._dispatchOverlayComplete(overlay, calculate);
             points.length = 0;
             drawPoint.length = 0;
@@ -1144,6 +1151,9 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
          */
         var endAction = function (e) {
             var calculate = me._calculate(polygon, polygon.getPath()[2]);
+            if (calculate && calculate.label) {
+                polygon._label = calculate.label;
+            }
             me._dispatchOverlayComplete(polygon, calculate);
             startPoint = null;
             mask.disableEdgeMove();
@@ -1231,7 +1241,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
             console.debug("绘制完成");
             map.removeOverlay(chooseMarker);
             map.removeOverlay(areaLevelChooseControl);
-            var calculate = me._calculate(polygons, pointArray[0]);
+            //var calculate = me._calculate(polygons, pointArray[0]);
             me._dispatchOverlayComplete({
                 text: lastMarkAddress,
                 polygons: polygons,
@@ -1367,7 +1377,6 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
      * 派发事件
      */
     DrawingManager.prototype._dispatchOverlayComplete = function (overlay, calculate) {
-        debugger;
         var options = {
             'overlay': overlay,
             'drawingMode': this._drawingType
@@ -1681,6 +1690,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
         tips[BMAP_DRAWING_POLYGON] = "画多边形";
         tips[BMAP_DRAWING_RECTANGLE] = "画矩形";
         tips[PJ_ADMINISTRATIVE_AREA] = "画行政区域";
+        tips[CLEAN_BUTTON] = "清空形状";
 
         var getItem = function (className, drawingType) {
             return '<a class="' + className + '" drawingType="' + drawingType + '" href="javascript:void(0)" title="' + tips[drawingType] + '" onfocus="this.blur()"></a>';
@@ -1695,6 +1705,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
             }
             html.push(getItem(classStr, this.drawingModes[i]));
         }
+        html.push(getItem("BMapLib_box BMapLib_cleanbtn", "cleanbtn"));
         return html.join('');
     }
 
@@ -1733,6 +1744,10 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
         baidu.on(this.panel, 'click', function (e) {
             var target = baidu.getTarget(e);
             var drawingType = target.getAttribute('drawingType');
+            if (drawingType == "cleanbtn") {
+                me.drawingToolOptions.clean();
+                return;
+            }
             if (me.drawingToolOptions.beforeDraw) {
                 if (drawingType == "hander")
                     return;
@@ -1913,6 +1928,18 @@ function ElectronicFence(map, opts) {
                     }
                 }
                 return true;
+            },
+            clean: function () {
+                if (confirm("确定要清空所有形状么？")) {
+                    me._ef = new Array();
+                    for (var i = 0; i < me._mainOverlays.length; i++) {
+                        var overlay = me._mainOverlays[i];
+                        if (overlay._label) {
+                            me._map.removeOverlay(overlay._label);
+                        }
+                        me._map.removeOverlay(overlay);
+                    }
+                }
             }
         }
     });
@@ -1953,6 +1980,14 @@ function ElectronicFence(map, opts) {
             type: "administrativearea",
             text: data.text,
             pointArray: data.pointArray
+        });
+    });
+    //划线
+    myDrawingManagerObject.addEventListener("polylinecomplete", function (e, overlay) {
+        me._mainOverlays.push(overlay);
+        pushOverlay({
+            type: "polyline",
+            points: overlay.getPath()
         });
     });
 }
@@ -2024,6 +2059,9 @@ ElectronicFence.prototype.setElectronicFence = function (efs) {
                 break;
             case "administrativearea"://行政区域
                 drawadministrativearea(ef);
+                break;
+            case "polyline"://线
+            //TODO: 设置数据时候画线
                 break;
             default:
                 console.warn("无法识别的电子围栏类型:" + ef.type);
