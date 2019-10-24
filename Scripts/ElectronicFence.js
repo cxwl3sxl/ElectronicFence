@@ -1231,11 +1231,12 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
             console.debug("绘制完成");
             map.removeOverlay(chooseMarker);
             map.removeOverlay(areaLevelChooseControl);
+            var calculate = me._calculate(polygons, pointArray[0]);
             me._dispatchOverlayComplete({
                 text: lastMarkAddress,
                 polygons: polygons,
                 pointArray: pointArray
-            });
+            }, calculate);
             me.close();
         };
 
@@ -1286,16 +1287,28 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
         if (this._enableCalculate && BMapLib.GeoUtils) {
             var type = overlay.toString();
             //不同覆盖物调用不同的计算方法
+            var unit = "";
             switch (type) {
                 case "[object Polyline]":
                     result.data = BMapLib.GeoUtils.getPolylineDistance(overlay);
+                    unit = "米";
                     break;
                 case "[object Polygon]":
-                    result.data = BMapLib.GeoUtils.getPolygonArea(overlay);
+                    if (overlay instanceof Array) {
+                        result.data = 0;
+                        for (var i = 0; i < overlay.length; i++) {
+                            result.data += BMapLib.GeoUtils.getPolygonArea(overlay[i]);
+                        }
+                    }
+                    else {
+                        result.data = BMapLib.GeoUtils.getPolygonArea(overlay);
+                    }
+                    unit = "平方米";
                     break;
                 case "[object Circle]":
                     var radius = overlay.getRadius();
                     result.data = Math.PI * radius * radius;
+                    unit = "平方米";
                     break;
             }
             //一场情况处理
@@ -1303,7 +1316,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
                 result.data = 0;
             } else {
                 //保留2位小数位
-                result.data = result.data.toFixed(2);
+                result.data = result.data.toFixed(2) + unit;
             }
             result.label = this._addLabel(point, result.data);
         }
@@ -1354,6 +1367,7 @@ PJ_ADMINISTRATIVE_AREA = "administrativearea";//基于行政区域的围栏模�
      * 派发事件
      */
     DrawingManager.prototype._dispatchOverlayComplete = function (overlay, calculate) {
+        debugger;
         var options = {
             'overlay': overlay,
             'drawingMode': this._drawingType
@@ -1902,6 +1916,8 @@ function ElectronicFence(map, opts) {
             }
         }
     });
+    if (drawOpts.computeInfo) myDrawingManagerObject.enableCalculate();
+    //圆
     myDrawingManagerObject.addEventListener("circlecomplete", function (e, overlay) {
         me._mainOverlays.push(overlay);
         pushOverlay({
@@ -1910,6 +1926,7 @@ function ElectronicFence(map, opts) {
             radius: overlay.getRadius()
         });
     });
+    //多边形
     myDrawingManagerObject.addEventListener("polygoncomplete", function (e, overlay) {
         me._mainOverlays.push(overlay);
         pushOverlay({
@@ -1917,6 +1934,7 @@ function ElectronicFence(map, opts) {
             points: overlay.getPath()
         });
     });
+    //矩形
     myDrawingManagerObject.addEventListener("rectanglecomplete", function (e, overlay) {
         me._mainOverlays.push(overlay);
         var bound = overlay.getBounds();
@@ -1926,6 +1944,7 @@ function ElectronicFence(map, opts) {
             ne: bound.getNorthEast()
         });
     });
+    //行政区域
     myDrawingManagerObject.addEventListener("administrativeareacomplete", function (e, data) {
         for (var i = 0; i < data.polygons.length; i++) {
             me._mainOverlays.push(data.polygons[i]);
@@ -1935,9 +1954,6 @@ function ElectronicFence(map, opts) {
             text: data.text,
             pointArray: data.pointArray
         });
-    });
-    myDrawingManagerObject.addEventListener("polylinecomplete", function (e, overlay) {
-        console.log("划线完毕")
     });
 }
 ElectronicFence.prototype.setElectronicFence = function (efs) {

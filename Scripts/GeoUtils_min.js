@@ -1,1 +1,452 @@
-var BMapLib=window.BMapLib=BMapLib||{};(function(){var a=6370996.81;var b=BMapLib.GeoUtils=function(){};b.isPointInRect=function(f,g){if(!(f instanceof BMap.Point)||!(g instanceof BMap.Bounds)){return false}var e=g.getSouthWest();var h=g.getNorthEast();return(f.lng>=e.lng&&f.lng<=h.lng&&f.lat>=e.lat&&f.lat<=h.lat)};b.isPointInCircle=function(e,h){if(!(e instanceof BMap.Point)||!(h instanceof BMap.Circle)){return false}var i=h.getCenter();var g=h.getRadius();var f=b.getDistance(e,i);if(f<=g){return true}else{return false}};b.isPointOnPolyline=function(f,h){if(!(f instanceof BMap.Point)||!(h instanceof BMap.Polyline)){return false}var e=h.getBounds();if(!this.isPointInRect(f,e)){return false}var m=h.getPath();for(var k=0;k<m.length-1;k++){var l=m[k];var j=m[k+1];if(f.lng>=Math.min(l.lng,j.lng)&&f.lng<=Math.max(l.lng,j.lng)&&f.lat>=Math.min(l.lat,j.lat)&&f.lat<=Math.max(l.lat,j.lat)){var g=(l.lng-f.lng)*(j.lat-f.lat)-(j.lng-f.lng)*(l.lat-f.lat);if(g<2e-10&&g>-2e-10){return true}}}return false};b.isPointInPolygon=function(o,l){if(!(o instanceof BMap.Point)||!(l instanceof BMap.Polygon)){return false}var k=l.getBounds();if(!this.isPointInRect(o,k)){return false}var t=l.getPath();var h=t.length;var n=true;var j=0;var g=2e-10;var s,q;var e=o;s=t[0];for(var f=1;f<=h;++f){if(e.equals(s)){return n}q=t[f%h];if(e.lat<Math.min(s.lat,q.lat)||e.lat>Math.max(s.lat,q.lat)){s=q;continue}if(e.lat>Math.min(s.lat,q.lat)&&e.lat<Math.max(s.lat,q.lat)){if(e.lng<=Math.max(s.lng,q.lng)){if(s.lat==q.lat&&e.lng>=Math.min(s.lng,q.lng)){return n}if(s.lng==q.lng){if(s.lng==e.lng){return n}else{++j}}else{var r=(e.lat-s.lat)*(q.lng-s.lng)/(q.lat-s.lat)+s.lng;if(Math.abs(e.lng-r)<g){return n}if(e.lng<r){++j}}}}else{if(e.lat==q.lat&&e.lng<=q.lng){var m=t[(f+1)%h];if(e.lat>=Math.min(s.lat,m.lat)&&e.lat<=Math.max(s.lat,m.lat)){++j}else{j+=2}}}s=q}if(j%2==0){return false}else{return true}};b.degreeToRad=function(e){return Math.PI*e/180};b.radToDegree=function(e){return(180*e)/Math.PI};function d(g,f,e){if(f!=null){g=Math.max(g,f)}if(e!=null){g=Math.min(g,e)}return g}function c(g,f,e){while(g>e){g-=e-f}while(g<f){g+=e-f}return g}b.getDistance=function(j,h){if(!(j instanceof BMap.Point)||!(h instanceof BMap.Point)){return 0}j.lng=c(j.lng,-180,180);j.lat=d(j.lat,-74,74);h.lng=c(h.lng,-180,180);h.lat=d(h.lat,-74,74);var f,e,i,g;f=b.degreeToRad(j.lng);i=b.degreeToRad(j.lat);e=b.degreeToRad(h.lng);g=b.degreeToRad(h.lat);return a*Math.acos((Math.sin(i)*Math.sin(g)+Math.cos(i)*Math.cos(g)*Math.cos(e-f)))};b.getPolylineDistance=function(f){if(f instanceof BMap.Polyline||f instanceof Array){var l;if(f instanceof BMap.Polyline){l=f.getPath()}else{l=f}if(l.length<2){return 0}var j=0;for(var h=0;h<l.length-1;h++){var k=l[h];var g=l[h+1];var e=b.getDistance(k,g);j+=e}return j}else{return 0}};b.getPolygonArea=function(t){if(!(t instanceof BMap.Polygon)&&!(t instanceof Array)){return 0}var R;if(t instanceof BMap.Polygon){R=t.getPath()}else{R=t}if(R.length<3){return 0}var w=0;var D=0;var C=0;var L=0;var J=0;var F=0;var E=0;var S=0;var H=0;var p=0;var T=0;var I=0;var q=0;var e=0;var M=0;var v=0;var K=0;var N=0;var s=0;var O=0;var l=0;var g=0;var z=0;var Q=0;var G=0;var j=0;var A=0;var o=0;var m=0;var y=0;var x=0;var h=0;var k=0;var f=0;var n=a;var B=R.length;for(var P=0;P<B;P++){if(P==0){D=R[B-1].lng*Math.PI/180;C=R[B-1].lat*Math.PI/180;L=R[0].lng*Math.PI/180;J=R[0].lat*Math.PI/180;F=R[1].lng*Math.PI/180;E=R[1].lat*Math.PI/180}else{if(P==B-1){D=R[B-2].lng*Math.PI/180;C=R[B-2].lat*Math.PI/180;L=R[B-1].lng*Math.PI/180;J=R[B-1].lat*Math.PI/180;F=R[0].lng*Math.PI/180;E=R[0].lat*Math.PI/180}else{D=R[P-1].lng*Math.PI/180;C=R[P-1].lat*Math.PI/180;L=R[P].lng*Math.PI/180;J=R[P].lat*Math.PI/180;F=R[P+1].lng*Math.PI/180;E=R[P+1].lat*Math.PI/180}}S=Math.cos(J)*Math.cos(L);H=Math.cos(J)*Math.sin(L);p=Math.sin(J);T=Math.cos(C)*Math.cos(D);I=Math.cos(C)*Math.sin(D);q=Math.sin(C);e=Math.cos(E)*Math.cos(F);M=Math.cos(E)*Math.sin(F);v=Math.sin(E);K=(S*S+H*H+p*p)/(S*T+H*I+p*q);N=(S*S+H*H+p*p)/(S*e+H*M+p*v);s=K*T-S;O=K*I-H;l=K*q-p;g=N*e-S;z=N*M-H;Q=N*v-p;m=(g*s+z*O+Q*l)/(Math.sqrt(g*g+z*z+Q*Q)*Math.sqrt(s*s+O*O+l*l));m=Math.acos(m);G=z*l-Q*O;j=0-(g*l-Q*s);A=g*O-z*s;if(S!=0){o=G/S}else{if(H!=0){o=j/H}else{o=A/p}}if(o>0){y+=m;k++}else{x+=m;h++}}var u,r;u=y+(2*Math.PI*h-x);r=(2*Math.PI*k-y)+x;if(y>x){if((u-(B-2)*Math.PI)<1){f=u}else{f=r}}else{if((r-(B-2)*Math.PI)<1){f=r}else{f=u}}w=(f-(B-2)*Math.PI)*n*n;return w}})();
+/**
+ * @fileoverview GeoUtils类提供若干几何算法，用来帮助用户判断点与矩形、
+ * 圆形、多边形线、多边形面的关系,并提供计算折线长度和多边形的面积的公式。 
+ * 主入口类是<a href="symbols/BMapLib.GeoUtils.html">GeoUtils</a>，
+ * 基于Baidu Map API 1.2。
+ *
+ * @author Baidu Map Api Group 
+ * @version 1.2
+ */
+
+/** 
+ * @namespace BMap的所有library类均放在BMapLib命名空间下
+ */
+var BMapLib = window.BMapLib = BMapLib || {};
+(function () {
+
+    /**
+     * 地球半径
+     */
+    var EARTHRADIUS = 6370996.81;
+
+    /** 
+     * @exports GeoUtils as BMapLib.GeoUtils 
+     */
+    var GeoUtils =
+        /**
+         * GeoUtils类，静态类，勿需实例化即可使用
+         * @class GeoUtils类的<b>入口</b>。
+         * 该类提供的都是静态方法，勿需实例化即可使用。     
+         */
+        BMapLib.GeoUtils = function () {
+
+        }
+
+    /**
+     * 判断点是否在矩形内
+     * @param {Point} point 点对象
+     * @param {Bounds} bounds 矩形边界对象
+     * @returns {Boolean} 点在矩形内返回true,否则返回false
+     */
+    GeoUtils.isPointInRect = function (point, bounds) {
+        //检查类型是否正确
+        if (!(point instanceof BMap.Point) ||
+            !(bounds instanceof BMap.Bounds)) {
+            return false;
+        }
+        var sw = bounds.getSouthWest(); //西南脚点
+        var ne = bounds.getNorthEast(); //东北脚点
+        return (point.lng >= sw.lng && point.lng <= ne.lng && point.lat >= sw.lat && point.lat <= ne.lat);
+    }
+
+    /**
+     * 判断点是否在圆形内
+     * @param {Point} point 点对象
+     * @param {Circle} circle 圆形对象
+     * @returns {Boolean} 点在圆形内返回true,否则返回false
+     */
+    GeoUtils.isPointInCircle = function (point, circle) {
+        //检查类型是否正确
+        if (!(point instanceof BMap.Point) ||
+            !(circle instanceof BMap.Circle)) {
+            return false;
+        }
+
+        //point与圆心距离小于圆形半径，则点在圆内，否则在圆外
+        var c = circle.getCenter();
+        var r = circle.getRadius();
+
+        var dis = GeoUtils.getDistance(point, c);
+        if (dis <= r) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 判断点是否在折线上
+     * @param {Point} point 点对象
+     * @param {Polyline} polyline 折线对象
+     * @returns {Boolean} 点在折线上返回true,否则返回false
+     */
+    GeoUtils.isPointOnPolyline = function (point, polyline) {
+        //检查类型
+        if (!(point instanceof BMap.Point) ||
+            !(polyline instanceof BMap.Polyline)) {
+            return false;
+        }
+
+        //首先判断点是否在线的外包矩形内，如果在，则进一步判断，否则返回false
+        var lineBounds = polyline.getBounds();
+        if (!this.isPointInRect(point, lineBounds)) {
+            return false;
+        }
+
+        //判断点是否在线段上，设点为Q，线段为P1P2 ，
+        //判断点Q在该线段上的依据是：( Q - P1 ) × ( P2 - P1 ) = 0，且 Q 在以 P1，P2为对角顶点的矩形内
+        var pts = polyline.getPath();
+        for (var i = 0; i < pts.length - 1; i++) {
+            var curPt = pts[i];
+            var nextPt = pts[i + 1];
+            //首先判断point是否在curPt和nextPt之间，即：此判断该点是否在该线段的外包矩形内
+            if (point.lng >= Math.min(curPt.lng, nextPt.lng) && point.lng <= Math.max(curPt.lng, nextPt.lng) &&
+                point.lat >= Math.min(curPt.lat, nextPt.lat) && point.lat <= Math.max(curPt.lat, nextPt.lat)) {
+                //判断点是否在直线上公式
+                var precision = (curPt.lng - point.lng) * (nextPt.lat - point.lat) -
+                    (nextPt.lng - point.lng) * (curPt.lat - point.lat);
+                if (precision < 2e-10 && precision > -2e-10) {//实质判断是否接近0
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断点是否多边形内
+     * @param {Point} point 点对象
+     * @param {Polyline} polygon 多边形对象
+     * @returns {Boolean} 点在多边形内返回true,否则返回false
+     */
+    GeoUtils.isPointInPolygon = function (point, polygon) {
+        //检查类型
+        if (!(point instanceof BMap.Point) ||
+            !(polygon instanceof BMap.Polygon)) {
+            return false;
+        }
+
+        //首先判断点是否在多边形的外包矩形内，如果在，则进一步判断，否则返回false
+        var polygonBounds = polygon.getBounds();
+        if (!this.isPointInRect(point, polygonBounds)) {
+            return false;
+        }
+
+        var pts = polygon.getPath();//获取多边形点
+
+        //下述代码来源：http://paulbourke.net/geometry/insidepoly/，进行了部分修改
+        //基本思想是利用射线法，计算射线与多边形各边的交点，如果是偶数，则点在多边形外，否则
+        //在多边形内。还会考虑一些特殊情况，如点在多边形顶点上，点在多边形边上等特殊情况。
+
+        var N = pts.length;
+        var boundOrVertex = true; //如果点位于多边形的顶点或边上，也算做点在多边形内，直接返回true
+        var intersectCount = 0;//cross points count of x 
+        var precision = 2e-10; //浮点类型计算时候与0比较时候的容差
+        var p1, p2;//neighbour bound vertices
+        var p = point; //测试点
+
+        p1 = pts[0];//left vertex        
+        for (var i = 1; i <= N; ++i) {//check all rays            
+            if (p.equals(p1)) {
+                return boundOrVertex;//p is an vertex
+            }
+
+            p2 = pts[i % N];//right vertex            
+            if (p.lat < Math.min(p1.lat, p2.lat) || p.lat > Math.max(p1.lat, p2.lat)) {//ray is outside of our interests                
+                p1 = p2;
+                continue;//next ray left point
+            }
+
+            if (p.lat > Math.min(p1.lat, p2.lat) && p.lat < Math.max(p1.lat, p2.lat)) {//ray is crossing over by the algorithm (common part of)
+                if (p.lng <= Math.max(p1.lng, p2.lng)) {//x is before of ray                    
+                    if (p1.lat == p2.lat && p.lng >= Math.min(p1.lng, p2.lng)) {//overlies on a horizontal ray
+                        return boundOrVertex;
+                    }
+
+                    if (p1.lng == p2.lng) {//ray is vertical                        
+                        if (p1.lng == p.lng) {//overlies on a vertical ray
+                            return boundOrVertex;
+                        } else {//before ray
+                            ++intersectCount;
+                        }
+                    } else {//cross point on the left side                        
+                        var xinters = (p.lat - p1.lat) * (p2.lng - p1.lng) / (p2.lat - p1.lat) + p1.lng;//cross point of lng                        
+                        if (Math.abs(p.lng - xinters) < precision) {//overlies on a ray
+                            return boundOrVertex;
+                        }
+
+                        if (p.lng < xinters) {//before ray
+                            ++intersectCount;
+                        }
+                    }
+                }
+            } else {//special case when ray is crossing through the vertex                
+                if (p.lat == p2.lat && p.lng <= p2.lng) {//p crossing over p2                    
+                    var p3 = pts[(i + 1) % N]; //next vertex                    
+                    if (p.lat >= Math.min(p1.lat, p3.lat) && p.lat <= Math.max(p1.lat, p3.lat)) {//p.lat lies between p1.lat & p3.lat
+                        ++intersectCount;
+                    } else {
+                        intersectCount += 2;
+                    }
+                }
+            }
+            p1 = p2;//next ray left point
+        }
+
+        if (intersectCount % 2 == 0) {//偶数在多边形外
+            return false;
+        } else { //奇数在多边形内
+            return true;
+        }
+    }
+
+    /**
+     * 将度转化为弧度
+     * @param {degree} Number 度     
+     * @returns {Number} 弧度
+     */
+    GeoUtils.degreeToRad = function (degree) {
+        return Math.PI * degree / 180;
+    }
+
+    /**
+     * 将弧度转化为度
+     * @param {radian} Number 弧度     
+     * @returns {Number} 度
+     */
+    GeoUtils.radToDegree = function (rad) {
+        return (180 * rad) / Math.PI;
+    }
+
+    /**
+     * 将v值限定在a,b之间，纬度使用
+     */
+    function _getRange(v, a, b) {
+        if (a != null) {
+            v = Math.max(v, a);
+        }
+        if (b != null) {
+            v = Math.min(v, b);
+        }
+        return v;
+    }
+
+    /**
+     * 将v值限定在a,b之间，经度使用
+     */
+    function _getLoop(v, a, b) {
+        while (v > b) {
+            v -= b - a
+        }
+        while (v < a) {
+            v += b - a
+        }
+        return v;
+    }
+
+    /**
+     * 计算两点之间的距离,两点坐标必须为经纬度
+     * @param {point1} Point 点对象
+     * @param {point2} Point 点对象
+     * @returns {Number} 两点之间距离，单位为米
+     */
+    GeoUtils.getDistance = function (point1, point2) {
+        //判断类型
+        if (!(point1 instanceof BMap.Point) ||
+            !(point2 instanceof BMap.Point)) {
+            return 0;
+        }
+
+        point1.lng = _getLoop(point1.lng, -180, 180);
+        point1.lat = _getRange(point1.lat, -74, 74);
+        point2.lng = _getLoop(point2.lng, -180, 180);
+        point2.lat = _getRange(point2.lat, -74, 74);
+
+        var x1, x2, y1, y2;
+        x1 = GeoUtils.degreeToRad(point1.lng);
+        y1 = GeoUtils.degreeToRad(point1.lat);
+        x2 = GeoUtils.degreeToRad(point2.lng);
+        y2 = GeoUtils.degreeToRad(point2.lat);
+
+        return EARTHRADIUS * Math.acos((Math.sin(y1) * Math.sin(y2) + Math.cos(y1) * Math.cos(y2) * Math.cos(x2 - x1)));
+    }
+
+    /**
+     * 计算折线或者点数组的长度
+     * @param {Polyline|Array<Point>} polyline 折线对象或者点数组
+     * @returns {Number} 折线或点数组对应的长度
+     */
+    GeoUtils.getPolylineDistance = function (polyline) {
+        //检查类型
+        if (polyline instanceof BMap.Polyline ||
+            polyline instanceof Array) {
+            //将polyline统一为数组
+            var pts;
+            if (polyline instanceof BMap.Polyline) {
+                pts = polyline.getPath();
+            } else {
+                pts = polyline;
+            }
+
+            if (pts.length < 2) {//小于2个点，返回0
+                return 0;
+            }
+
+            //遍历所有线段将其相加，计算整条线段的长度
+            var totalDis = 0;
+            for (var i = 0; i < pts.length - 1; i++) {
+                var curPt = pts[i];
+                var nextPt = pts[i + 1]
+                var dis = GeoUtils.getDistance(curPt, nextPt);
+                totalDis += dis;
+            }
+
+            return totalDis;
+
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * 计算多边形面或点数组构建图形的面积,注意：坐标类型只能是经纬度，且不适合计算自相交多边形的面积
+     * @param {Polygon|Array<Point>} polygon 多边形面对象或者点数组
+     * @returns {Number} 多边形面或点数组构成图形的面积
+     */
+    GeoUtils.getPolygonArea = function (polygon) {
+        //检查类型
+        if (!(polygon instanceof BMap.Polygon) &&
+            !(polygon instanceof Array)) {
+            return 0;
+        }
+        var pts;
+        if (polygon instanceof BMap.Polygon) {
+            pts = polygon.getPath();
+        } else {
+            pts = polygon;
+        }
+
+        if (pts.length < 3) {//小于3个顶点，不能构建面
+            return 0;
+        }
+
+        var totalArea = 0;//初始化总面积
+        var LowX = 0.0;
+        var LowY = 0.0;
+        var MiddleX = 0.0;
+        var MiddleY = 0.0;
+        var HighX = 0.0;
+        var HighY = 0.0;
+        var AM = 0.0;
+        var BM = 0.0;
+        var CM = 0.0;
+        var AL = 0.0;
+        var BL = 0.0;
+        var CL = 0.0;
+        var AH = 0.0;
+        var BH = 0.0;
+        var CH = 0.0;
+        var CoefficientL = 0.0;
+        var CoefficientH = 0.0;
+        var ALtangent = 0.0;
+        var BLtangent = 0.0;
+        var CLtangent = 0.0;
+        var AHtangent = 0.0;
+        var BHtangent = 0.0;
+        var CHtangent = 0.0;
+        var ANormalLine = 0.0;
+        var BNormalLine = 0.0;
+        var CNormalLine = 0.0;
+        var OrientationValue = 0.0;
+        var AngleCos = 0.0;
+        var Sum1 = 0.0;
+        var Sum2 = 0.0;
+        var Count2 = 0;
+        var Count1 = 0;
+        var Sum = 0.0;
+        var Radius = EARTHRADIUS; //6378137.0,WGS84椭球半径 
+        var Count = pts.length;
+        for (var i = 0; i < Count; i++) {
+            if (i == 0) {
+                LowX = pts[Count - 1].lng * Math.PI / 180;
+                LowY = pts[Count - 1].lat * Math.PI / 180;
+                MiddleX = pts[0].lng * Math.PI / 180;
+                MiddleY = pts[0].lat * Math.PI / 180;
+                HighX = pts[1].lng * Math.PI / 180;
+                HighY = pts[1].lat * Math.PI / 180;
+            }
+            else if (i == Count - 1) {
+                LowX = pts[Count - 2].lng * Math.PI / 180;
+                LowY = pts[Count - 2].lat * Math.PI / 180;
+                MiddleX = pts[Count - 1].lng * Math.PI / 180;
+                MiddleY = pts[Count - 1].lat * Math.PI / 180;
+                HighX = pts[0].lng * Math.PI / 180;
+                HighY = pts[0].lat * Math.PI / 180;
+            }
+            else {
+                LowX = pts[i - 1].lng * Math.PI / 180;
+                LowY = pts[i - 1].lat * Math.PI / 180;
+                MiddleX = pts[i].lng * Math.PI / 180;
+                MiddleY = pts[i].lat * Math.PI / 180;
+                HighX = pts[i + 1].lng * Math.PI / 180;
+                HighY = pts[i + 1].lat * Math.PI / 180;
+            }
+            AM = Math.cos(MiddleY) * Math.cos(MiddleX);
+            BM = Math.cos(MiddleY) * Math.sin(MiddleX);
+            CM = Math.sin(MiddleY);
+            AL = Math.cos(LowY) * Math.cos(LowX);
+            BL = Math.cos(LowY) * Math.sin(LowX);
+            CL = Math.sin(LowY);
+            AH = Math.cos(HighY) * Math.cos(HighX);
+            BH = Math.cos(HighY) * Math.sin(HighX);
+            CH = Math.sin(HighY);
+            CoefficientL = (AM * AM + BM * BM + CM * CM) / (AM * AL + BM * BL + CM * CL);
+            CoefficientH = (AM * AM + BM * BM + CM * CM) / (AM * AH + BM * BH + CM * CH);
+            ALtangent = CoefficientL * AL - AM;
+            BLtangent = CoefficientL * BL - BM;
+            CLtangent = CoefficientL * CL - CM;
+            AHtangent = CoefficientH * AH - AM;
+            BHtangent = CoefficientH * BH - BM;
+            CHtangent = CoefficientH * CH - CM;
+            AngleCos = (AHtangent * ALtangent + BHtangent * BLtangent + CHtangent * CLtangent) / (Math.sqrt(AHtangent * AHtangent + BHtangent * BHtangent + CHtangent * CHtangent) * Math.sqrt(ALtangent * ALtangent + BLtangent * BLtangent + CLtangent * CLtangent));
+            AngleCos = Math.acos(AngleCos);
+            ANormalLine = BHtangent * CLtangent - CHtangent * BLtangent;
+            BNormalLine = 0 - (AHtangent * CLtangent - CHtangent * ALtangent);
+            CNormalLine = AHtangent * BLtangent - BHtangent * ALtangent;
+            if (AM != 0)
+                OrientationValue = ANormalLine / AM;
+            else if (BM != 0)
+                OrientationValue = BNormalLine / BM;
+            else
+                OrientationValue = CNormalLine / CM;
+            if (OrientationValue > 0) {
+                Sum1 += AngleCos;
+                Count1++;
+            }
+            else {
+                Sum2 += AngleCos;
+                Count2++;
+            }
+        }
+        var tempSum1, tempSum2;
+        tempSum1 = Sum1 + (2 * Math.PI * Count2 - Sum2);
+        tempSum2 = (2 * Math.PI * Count1 - Sum1) + Sum2;
+        if (Sum1 > Sum2) {
+            if ((tempSum1 - (Count - 2) * Math.PI) < 1)
+                Sum = tempSum1;
+            else
+                Sum = tempSum2;
+        }
+        else {
+            if ((tempSum2 - (Count - 2) * Math.PI) < 1)
+                Sum = tempSum2;
+            else
+                Sum = tempSum1;
+        }
+        totalArea = (Sum - (Count - 2) * Math.PI) * Radius * Radius;
+
+        return totalArea; //返回总面积
+    }
+
+})();//闭包结束

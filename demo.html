@@ -9,7 +9,7 @@
     </script>
     <script src="Scripts/GeoUtils_min.js"></script>
     <script src="Scripts/ElectronicFence.js"></script>
-    
+
     <link href="css/ElectronicFence.css" rel="stylesheet" />
 </head>
 
@@ -34,6 +34,7 @@
         map.enableContinuousZoom();
 
         var ef = new ElectronicFence(map, {
+            computeInfo: true,
             allowMulit: true,
             drawingModes: [
                 BMAP_DRAWING_CIRCLE,
