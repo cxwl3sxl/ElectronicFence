@@ -1705,7 +1705,8 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
             }
             html.push(getItem(classStr, this.drawingModes[i]));
         }
-        html.push(getItem("BMapLib_box BMapLib_cleanbtn", "cleanbtn"));
+        if (!this.drawingToolOptions.noCleanBtn)
+            html.push(getItem("BMapLib_box BMapLib_cleanbtn", "cleanbtn"));
         return html.join('');
     }
 
@@ -1880,6 +1881,7 @@ function ElectronicFence(map, opts) {
 
     var drawOpts = $.extend({
         allowMulit: false,
+        noCleanBtn: false,
         computeInfo: false,//页面必须引用GeoUtils_min.js
         drawingModes: [BMAP_DRAWING_CIRCLE, BMAP_DRAWING_POLYGON, BMAP_DRAWING_RECTANGLE, PJ_ADMINISTRATIVE_AREA]
     }, opts);
@@ -1913,6 +1915,7 @@ function ElectronicFence(map, opts) {
             anchor: BMAP_ANCHOR_TOP_RIGHT,
             offset: new BMap.Size(5, 5),
             drawingModes: drawOpts.drawingModes,
+            noCleanBtn: drawOpts.noCleanBtn,
             beforeDraw: function () {
                 if (drawOpts.allowMulit)
                     return true;
@@ -2061,7 +2064,7 @@ ElectronicFence.prototype.setElectronicFence = function (efs) {
                 drawadministrativearea(ef);
                 break;
             case "polyline"://线
-            //TODO: 设置数据时候画线
+                //TODO: 设置数据时候画线
                 break;
             default:
                 console.warn("无法识别的电子围栏类型:" + ef.type);
