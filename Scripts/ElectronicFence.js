@@ -2012,6 +2012,7 @@ function ElectronicFence(map, opts) {
         });
     });
 }
+
 ElectronicFence.prototype.setElectronicFence = function (efs) {
     if (!(efs instanceof Array)) {
         console.warn("当前设置的电子围栏数据不是数组对象，无法解析");
@@ -2090,6 +2091,7 @@ ElectronicFence.prototype.setElectronicFence = function (efs) {
         }
     }
 };
+
 ElectronicFence.prototype.getElectronicFence = function () {
     return this._ef;
 };
@@ -2099,6 +2101,7 @@ ElectronicFence.prototype.show = function () {
     this._isShow = true;
     this._drawingManager.setVisible(true);
 };
+
 ElectronicFence.prototype.hide = function () {
     if (!this._isShow) return;
     this._isShow = false;
