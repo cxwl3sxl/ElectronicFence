@@ -1226,6 +1226,24 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
                         map.addOverlay(ply);  //添加覆盖物
                         polygons.push(ply);
                         pointArray.push(ply.getPath());
+                        ply.addEventListener("mouseover", function (e) {
+                            var target = e.target;
+                            if (target._label) {
+                                target._label.setPosition(e.point);
+                            }
+                            else {
+                                target._label = new BMap.Label(lastMarkAddress, {
+                                    position: e.point
+                                });
+                                map.addOverlay(target._label);
+                            }
+                        });
+                        ply.addEventListener("mouseout", function (e) {
+                            if (e.target._label) {
+                                map.removeOverlay(e.target._label);
+                                e.target._label = null;
+                            }
+                        });
                     }
                     //map.setViewport(pointArray);    //调整视野  
                 });
