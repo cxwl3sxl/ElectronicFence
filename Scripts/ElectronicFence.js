@@ -1241,12 +1241,13 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
             console.debug("绘制完成");
             map.removeOverlay(chooseMarker);
             map.removeOverlay(areaLevelChooseControl);
+            me._areaLevelChooseControl = null;
             //var calculate = me._calculate(polygons, pointArray[0]);
             me._dispatchOverlayComplete({
                 text: lastMarkAddress,
                 polygons: polygons,
                 pointArray: pointArray
-            }, calculate);
+            });//, calculate);
             me.close();
         };
 
@@ -1273,6 +1274,7 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
                     setViewArea(ee.point);
                 });
                 areaLevelChooseControl = new AreaLevelChooseControl();
+                me._areaLevelChooseControl = areaLevelChooseControl;
                 areaLevelChooseControl.setFinishCallback(finished);
                 // 添加到地图当中
                 map.addControl(areaLevelChooseControl);
@@ -1344,6 +1346,11 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
             script.setAttribute("src", 'http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js');
             document.body.appendChild(script);
         }
+    }
+
+    DrawingManager.prototype.setVisible = function (visible) {
+        if (this._areaLevelChooseControl != null) this._areaLevelChooseControl.setVisible(visible);
+        this._drawingTool.setVisible(visible);
     }
 
     /**
@@ -1660,6 +1667,7 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
     DrawingTool.prototype.initialize = function (map) {
         // 创建一个DOM元素
         var container = this.container = document.createElement("div");
+        this._container = container;
         container.className = "BMapLib_Drawing";
         //用来设置外层边框阴影
         var panel = this.panel = document.createElement("div");
@@ -1798,6 +1806,10 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
         }
     }
 
+    DrawingTool.prototype.setVisible = function (visible) {
+        this._container.style.display = visible ? "inherit" : "none";
+    }
+
     //用来存储用户实例化出来的drawingmanager对象
     var instances = [];
 
@@ -1851,6 +1863,7 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
 
         // 创建一个DOM元素
         var div = document.createElement("div");
+        this._container = div;
         div.className += " groupItem-box";
         // 添加文字说明
         div.appendChild(createItem("groupItem groupItem-left", "省", 0));
@@ -1873,6 +1886,9 @@ var BMAP_DRAWING_MARKER = "marker",     // 鼠标画点模式
 
     AreaLevelChooseControl.prototype.setFinishCallback = function (callback) {
         this._finishCallback = callback;
+    }
+    AreaLevelChooseControl.prototype.setVisible = function (visible) {
+        this._container.style.display = visible ? "inherit" : "none";
     }
 })();
 
@@ -1947,6 +1963,8 @@ function ElectronicFence(map, opts) {
         }
     });
     if (drawOpts.computeInfo) myDrawingManagerObject.enableCalculate();
+    this._drawingManager = myDrawingManagerObject;
+    this._isShow = true;
     //圆
     myDrawingManagerObject.addEventListener("circlecomplete", function (e, overlay) {
         me._mainOverlays.push(overlay);
@@ -2074,4 +2092,15 @@ ElectronicFence.prototype.setElectronicFence = function (efs) {
 };
 ElectronicFence.prototype.getElectronicFence = function () {
     return this._ef;
+};
+
+ElectronicFence.prototype.show = function () {
+    if (this._isShow) return;
+    this._isShow = true;
+    this._drawingManager.setVisible(true);
+};
+ElectronicFence.prototype.hide = function () {
+    if (!this._isShow) return;
+    this._isShow = false;
+    this._drawingManager.setVisible(false);
 };
